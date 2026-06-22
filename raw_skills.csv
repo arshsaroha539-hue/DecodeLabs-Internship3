@@ -1,0 +1,21 @@
+job_role,skills
+Data Scientist,Python SQL Machine_Learning Data_Analysis Statistics Pandas NumPy TensorFlow Visualization
+Machine Learning Engineer,Python TensorFlow PyTorch Deep_Learning Neural_Networks Algorithms Optimization Scikit_learn
+Backend Developer,Java Python SQL APIs REST Databases Node_js Django Flask Microservices
+Frontend Developer,JavaScript HTML CSS React Angular Vue TypeScript UI_Design Responsive_Design
+Full Stack Developer,JavaScript Python HTML CSS React Node_js SQL REST APIs Git
+DevOps Engineer,AWS Docker Kubernetes CI_CD Linux Automation Shell_Scripting Jenkins Git Cloud
+Cloud Architect,AWS Azure GCP Cloud Infrastructure Networking Security Automation DevOps Terraform
+Data Engineer,Python SQL ETL Spark Hadoop Data_Pipelines Airflow Kafka BigQuery
+Cybersecurity Analyst,Security Networking Linux Ethical_Hacking Firewall Cryptography Penetration_Testing SIEM
+AI Research Scientist,Python Deep_Learning Neural_Networks NLP Computer_Vision Research TensorFlow PyTorch Mathematics
+Mobile Developer,Swift Kotlin Java React_Native Flutter Android iOS APIs UI_Design
+Database Administrator,SQL MySQL PostgreSQL MongoDB Oracle Optimization Backup Security Administration
+Systems Administrator,Linux Windows Networking Servers Automation Shell_Scripting Security Cloud
+Business Intelligence Analyst,SQL Power_BI Tableau Data_Analysis Excel Visualization Reporting Python Statistics
+NLP Engineer,Python NLP BERT Transformers Deep_Learning TensorFlow Linguistics Text_Mining Hugging_Face
+Computer Vision Engineer,Python OpenCV Deep_Learning CNN TensorFlow PyTorch Image_Processing Computer_Vision
+Blockchain Developer,Solidity Smart_Contracts Ethereum Web3 Cryptography JavaScript Decentralization APIs
+Game Developer,C++ Unity Unreal_Engine OpenGL Physics_Engine 3D_Graphics Python JavaScript
+Embedded Systems Engineer,C C++ Microcontrollers RTOS Hardware Assembly Linux Firmware IoT
+QA Engineer,Testing Automation Selenium Python Java SQL Bug_Tracking CI_CD Agile

@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tech Stack Recommender — DecodeLabs AI Project 3</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0e1117;
+    --surface: #161b27;
+    --surface2: #1e2535;
+    --border: #2a3347;
+    --accent: #4f8ef7;
+    --accent2: #7c5cbf;
+    --green: #3ecf8e;
+    --amber: #f5a623;
+    --red: #ef4444;
+    --text: #e8eaf0;
+    --muted: #7a8499;
+    --tag-bg: #1e2a40;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+
+  /* Subtle grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(79,142,247,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(79,142,247,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 760px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 36px;
+    padding-top: 16px;
+  }
+
+  .badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    border: 1px solid rgba(79,142,247,0.35);
+    background: rgba(79,142,247,0.08);
+    padding: 4px 14px;
+    border-radius: 20px;
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-size: clamp(26px, 5vw, 40px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: 12px;
+  }
+
+  h1 span {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+
+  .card-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Skill Input */
+  .input-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    padding: 12px 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input[type="text"]:focus {
+    border-color: var(--accent);
+  }
+
+  input[type="text"]::placeholder { color: var(--muted); }
+
+  .btn {
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    cursor: pointer;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 12px 20px;
+    transition: opacity 0.15s, transform 0.1s;
+    white-space: nowrap;
+  }
+
+  .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+
+  .btn-run {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+    border-radius: 12px;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-run:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* Tags */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 36px;
+    margin-bottom: 6px;
+  }
+
+  .tag {
+    background: var(--tag-bg);
+    border: 1px solid rgba(79,142,247,0.3);
+    border-radius: 8px;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 5px 12px;
+    animation: pop 0.2s ease;
+  }
+
+  @keyframes pop {
+    0% { transform: scale(0.7); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .tag-remove {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1;
+    padding: 0;
+    transition: color 0.15s;
+  }
+  .tag-remove:hover { color: var(--red); }
+
+  /* Counter */
+  .counter {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .counter.ready { color: var(--green); }
+
+  /* Quick picks */
+  .quick-picks {
+    margin-top: 16px;
+  }
+
+  .quick-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .quick-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .quick-tag {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 4px 10px;
+    transition: all 0.15s;
+  }
+
+  .quick-tag:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Results */
+  .results-section { display: none; }
+  .results-section.visible { display: block; }
+
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+    animation: slideUp 0.35s ease both;
+  }
+
+  .result-card:nth-child(2) { animation-delay: 0.07s; }
+  .result-card:nth-child(3) { animation-delay: 0.14s; }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-card:hover { border-color: rgba(79,142,247,0.4); }
+
+  .result-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 3px 0 0 3px;
+  }
+
+  .result-card.rank-1::before { background: linear-gradient(180deg, #f5a623, #ef9422); }
+  .result-card.rank-2::before { background: linear-gradient(180deg, #94a3b8, #64748b); }
+  .result-card.rank-3::before { background: linear-gradient(180deg, #b08d57, #8d6e3f); }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  .rank-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .rank-1 .rank-badge { background: rgba(245,166,35,0.15); color: #f5a623; }
+  .rank-2 .rank-badge { background: rgba(148,163,184,0.12); color: #94a3b8; }
+  .rank-3 .rank-badge { background: rgba(176,141,87,0.12); color: #b08d57; }
+
+  .role-name {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    flex: 1;
+  }
+
+  .match-pct {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--green);
+  }
+
+  /* Progress bar */
+  .progress-track {
+    background: var(--surface2);
+    border-radius: 99px;
+    height: 6px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.8s cubic-bezier(.22,.68,0,1.2);
+  }
+
+  .rank-1 .progress-fill { background: linear-gradient(90deg, #f5a623, #fbbf24); }
+  .rank-2 .progress-fill { background: linear-gradient(90deg, #94a3b8, #cbd5e1); }
+  .rank-3 .progress-fill { background: linear-gradient(90deg, #b08d57, #d4a76a); }
+
+  .skill-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .skill-chip {
+    font-size: 12px;
+    padding: 3px 9px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .skill-chip.matched {
+    background: rgba(62,207,142,0.1);
+    border-color: rgba(62,207,142,0.35);
+    color: var(--green);
+  }
+
+  /* Algorithm info */
+  .algo-info {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-top: 20px;
+  }
+
+  .algo-steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  .algo-step {
+    text-align: center;
+    padding: 12px 8px;
+    background: var(--surface2);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+
+  .algo-step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .algo-step-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .algo-step-desc {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* Empty / loading */
+  .placeholder-text {
+    color: var(--muted);
+    font-size: 14px;
+    text-align: center;
+    padding: 32px;
+  }
+
+  .error-msg {
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.25);
+    border-radius: 10px;
+    color: #fca5a5;
+    font-size: 14px;
+    padding: 12px 16px;
+    margin-top: 10px;
+    display: none;
+  }
+
+  @media (max-width: 500px) {
+    .algo-steps { grid-template-columns: repeat(2, 1fr); }
+    .result-header { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="badge">DecodeLabs · AI Project 3 · Batch 2026</div>
+    <h1>Tech Stack<br><span>Recommender</span></h1>
+    <p class="subtitle">Enter your skills and get matched to the top career paths<br>using TF-IDF weighting + Cosine Similarity</p>
+  </div>
+
+  <!-- Input Card -->
+  <div class="card">
+    <div class="card-label">Step 1 — Enter Your Skills</div>
+
+    <div class="input-row">
+      <input type="text" id="skillInput" placeholder="e.g. Python, AWS, Docker…" maxlength="40" />
+      <button class="btn" onclick="addSkill()">Add</button>
+    </div>
+
+    <div class="tags" id="tagContainer"></div>
+    <p class="counter" id="counter">0 skills added — add at least 3</p>
+    <div class="error-msg" id="errorMsg"></div>
+
+    <div class="quick-picks">
+      <p class="quick-label">Quick picks:</p>
+      <div class="quick-tags" id="quickTags"></div>
+    </div>
+
+    <button class="btn btn-run" id="runBtn" onclick="runRecommender()" disabled>
+      ⚡ Get My Recommendations
+    </button>
+  </div>
+
+  <!-- Results -->
+  <div class="results-section" id="resultsSection">
+    <div class="card-label" style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+      Top Matches
+      <span style="flex:1;height:1px;background:var(--border);display:block;"></span>
+    </div>
+    <div id="resultsList"></div>
+  </div>
+
+  <!-- Algorithm Info -->
+  <div class="algo-info">
+    <div class="card-label">How It Works — 4-Step Pipeline</div>
+    <div class="algo-steps">
+      <div class="algo-step">
+        <div class="algo-step-num">01</div>
+        <div class="algo-step-name">Ingestion</div>
+        <div class="algo-step-desc">Capture user skill inputs</div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-step-num">02</div>
+        <div class="algo-step-name">Scoring</div>
+        <div class="algo-step-desc">TF-IDF + Cosine Similarity</div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-step-num">03</div>
+        <div class="algo-step-name">Sorting</div>
+        <div class="algo-step-desc">Rank by similarity score</div>
+      </div>
+      <div class="algo-step">
+        <div class="algo-step-num">04</div>
+        <div class="algo-step-name">Filtering</div>
+        <div class="algo-step-desc">Return Top-N results</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─── Dataset (mirrors raw_skills.csv) ───────────────────────────────────────
+const DATASET = [
+  { role: "Data Scientist",           skills: ["python","sql","machine learning","data analysis","statistics","pandas","numpy","tensorflow","visualization"] },
+  { role: "Machine Learning Engineer",skills: ["python","tensorflow","pytorch","deep learning","neural networks","algorithms","optimization","scikit learn"] },
+  { role: "Backend Developer",        skills: ["java","python","sql","apis","rest","databases","node js","django","flask","microservices"] },
+  { role: "Frontend Developer",       skills: ["javascript","html","css","react","angular","vue","typescript","ui design","responsive design"] },
+  { role: "Full Stack Developer",     skills: ["javascript","python","html","css","react","node js","sql","rest","apis","git"] },
+  { role: "DevOps Engineer",          skills: ["aws","docker","kubernetes","ci cd","linux","automation","shell scripting","jenkins","git","cloud"] },
+  { role: "Cloud Architect",          skills: ["aws","azure","gcp","cloud","infrastructure","networking","security","automation","devops","terraform"] },
+  { role: "Data Engineer",            skills: ["python","sql","etl","spark","hadoop","data pipelines","airflow","kafka","bigquery"] },
+  { role: "Cybersecurity Analyst",    skills: ["security","networking","linux","ethical hacking","firewall","cryptography","penetration testing","siem"] },
+  { role: "AI Research Scientist",    skills: ["python","deep learning","neural networks","nlp","computer vision","research","tensorflow","pytorch","mathematics"] },
+  { role: "Mobile Developer",         skills: ["swift","kotlin","java","react native","flutter","android","ios","apis","ui design"] },
+  { role: "Database Administrator",   skills: ["sql","mysql","postgresql","mongodb","oracle","optimization","backup","security","administration"] },
+  { role: "Systems Administrator",    skills: ["linux","windows","networking","servers","automation","shell scripting","security","cloud"] },
+  { role: "Business Intelligence Analyst", skills: ["sql","power bi","tableau","data analysis","excel","visualization","reporting","python","statistics"] },
+  { role: "NLP Engineer",             skills: ["python","nlp","bert","transformers","deep learning","tensorflow","linguistics","text mining","hugging face"] },
+  { role: "Computer Vision Engineer", skills: ["python","opencv","deep learning","cnn","tensorflow","pytorch","image processing","computer vision"] },
+  { role: "Blockchain Developer",     skills: ["solidity","smart contracts","ethereum","web3","cryptography","javascript","decentralization","apis"] },
+  { role: "Game Developer",           skills: ["c++","unity","unreal engine","opengl","physics engine","3d graphics","python","javascript"] },
+  { role: "Embedded Systems Engineer",skills: ["c","c++","microcontrollers","rtos","hardware","assembly","linux","firmware","iot"] },
+  { role: "QA Engineer",              skills: ["testing","automation","selenium","python","java","sql","bug tracking","ci cd","agile"] },
+];
+
+const QUICK_SKILLS = ["Python","JavaScript","SQL","AWS","Docker","Machine Learning","React","Java","Kubernetes","TensorFlow","Linux","MongoDB","TypeScript","Golang","Flutter"];
+
+let userSkills = [];
+
+// ─── TF-IDF Implementation ─────────────────────────────────────────────────
+function computeIDF(corpus) {
+  const N = corpus.length;
+  const df = {};
+  corpus.forEach(doc => {
+    const unique = [...new Set(doc)];
+    unique.forEach(term => { df[term] = (df[term] || 0) + 1; });
+  });
+  const idf = {};
+  Object.entries(df).forEach(([term, count]) => {
+    idf[term] = Math.log(N / count);
+  });
+  return idf;
+}
+
+function computeTFIDF(doc, idf) {
+  const total = doc.length;
+  const tf = {};
+  doc.forEach(t => { tf[t] = (tf[t] || 0) + 1; });
+  const vec = {};
+  Object.entries(tf).forEach(([t, cnt]) => {
+    vec[t] = (cnt / total) * (idf[t] || 0);
+  });
+  return vec;
+}
+
+function cosineSim(a, b) {
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+  let dot = 0, normA = 0, normB = 0;
+  keys.forEach(k => {
+    const av = a[k] || 0, bv = b[k] || 0;
+    dot   += av * bv;
+    normA += av * av;
+    normB += bv * bv;
+  });
+  if (!normA || !normB) return 0;
+  return dot / (Math.sqrt(normA) * Math.sqrt(normB));
+}
+
+function recommend(inputSkills) {
+  const corpus = DATASET.map(d => d.skills);
+  const idf = computeIDF(corpus);
+
+  const userTokens = inputSkills.map(s => s.toLowerCase().trim());
+  const userVec = computeTFIDF(userTokens, idf);
+
+  const scored = DATASET.map(item => {
+    const itemVec = computeTFIDF(item.skills, idf);
+    const score   = cosineSim(userVec, itemVec);
+    const matched = item.skills.filter(s => userTokens.some(u => s.includes(u) || u.includes(s)));
+    return { role: item.role, skills: item.skills, score, matched };
+  });
+
+  return scored.sort((a, b) => b.score - a.score).slice(0, 3);
+}
+
+// ─── UI Helpers ────────────────────────────────────────────────────────────
+function addSkill() {
+  const input = document.getElementById("skillInput");
+  const val = input.value.trim();
+  if (!val) return;
+  if (userSkills.map(s=>s.toLowerCase()).includes(val.toLowerCase())) {
+    showError("Skill already added.");
+    input.value = "";
+    return;
+  }
+  hideError();
+  userSkills.push(val);
+  renderTags();
+  input.value = "";
+  input.focus();
+}
+
+function removeSkill(i) {
+  userSkills.splice(i, 1);
+  renderTags();
+}
+
+function addQuick(skill) {
+  if (userSkills.map(s=>s.toLowerCase()).includes(skill.toLowerCase())) return;
+  userSkills.push(skill);
+  renderTags();
+}
+
+function renderTags() {
+  const container = document.getElementById("tagContainer");
+  container.innerHTML = userSkills.map((s, i) => `
+    <div class="tag">
+      ${s}
+      <button class="tag-remove" onclick="removeSkill(${i})">×</button>
+    </div>
+  `).join("");
+
+  const counter = document.getElementById("counter");
+  const runBtn  = document.getElementById("runBtn");
+  if (userSkills.length >= 3) {
+    counter.textContent = `${userSkills.length} skills added ✓ Ready!`;
+    counter.className = "counter ready";
+    runBtn.disabled = false;
+  } else {
+    counter.textContent = `${userSkills.length} skill${userSkills.length!==1?"s":""} added — add at least ${3-userSkills.length} more`;
+    counter.className = "counter";
+    runBtn.disabled = true;
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById("errorMsg");
+  el.textContent = msg;
+  el.style.display = "block";
+}
+
+function hideError() {
+  document.getElementById("errorMsg").style.display = "none";
+}
+
+function runRecommender() {
+  if (userSkills.length < 3) return;
+  const results = recommend(userSkills);
+
+  const section = document.getElementById("resultsSection");
+  const list    = document.getElementById("resultsList");
+
+  const rankClass = ["rank-1","rank-2","rank-3"];
+  const rankLabel = ["#1","#2","#3"];
+  const medal     = ["🥇","🥈","🥉"];
+
+  list.innerHTML = results.map((r, i) => {
+    const pct = Math.round(r.score * 100);
+    const chips = r.skills.slice(0, 10).map(s => {
+      const isMatch = r.matched.includes(s);
+      return `<span class="skill-chip ${isMatch?"matched":""}">${s}</span>`;
+    }).join("");
+
+    return `
+    <div class="result-card ${rankClass[i]}">
+      <div class="result-header">
+        <div class="rank-badge">${medal[i]}</div>
+        <div class="role-name">${r.role}</div>
+        <div class="match-pct">${pct}%</div>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" style="width:0%" data-target="${pct}%"></div>
+      </div>
+      <div class="skill-chips">${chips}</div>
+    </div>`;
+  }).join("");
+
+  section.classList.add("visible");
+
+  // Animate bars
+  setTimeout(() => {
+    document.querySelectorAll(".progress-fill").forEach(el => {
+      el.style.width = el.dataset.target;
+    });
+  }, 80);
+
+  section.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────
+document.getElementById("skillInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") addSkill();
+});
+
+const quickContainer = document.getElementById("quickTags");
+QUICK_SKILLS.forEach(s => {
+  const el = document.createElement("button");
+  el.className = "quick-tag";
+  el.textContent = s;
+  el.onclick = () => addQuick(s);
+  quickContainer.appendChild(el);
+});
+</script>
+</body>
+</html>
